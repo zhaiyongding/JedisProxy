@@ -56,7 +56,9 @@ class CglibProxy implements MethodInterceptor {
         enhancer.setSuperclass(Jedis.class);//设置创建子类的类
         enhancer.setCallback(this);
         enhancer.setClassLoader(resource.getClass().getClassLoader());
-        return (Jedis) enhancer.create();//通过字节码技术动态创建子类实例
+        //通过字节码技术动态创建子类实例,Cglib不支持代理类无空构造,
+        //Jedis 2.7 开始有空构造
+        return (Jedis) enhancer.create();
     }
 
     @Override
