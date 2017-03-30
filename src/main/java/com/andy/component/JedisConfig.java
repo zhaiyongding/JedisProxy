@@ -1,6 +1,7 @@
 package com.andy.component;
 
 import com.andy.jedis.JedisCglibProxy;
+import com.andy.jedis.JedisSpringAop;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -57,10 +58,17 @@ public class JedisConfig {
 
 
     @Bean(name ="redisProxy")
-    public Jedis promotionRedisProxy() {
+    public Jedis redisProxy() {
         JedisPool jedisPool = new JedisPool(getJedisPollConfig(), redisHost, port, redisTimeOut, redisauth, redisdb);
         JedisCglibProxy jedisCglibProxy = new JedisCglibProxy(jedisPool);
         return jedisCglibProxy.getJedisCglibProxy();
+    }
+
+    @Bean(name ="redisSpringProxy")
+    public Jedis redisSpringProxy() {
+        JedisPool jedisPool = new JedisPool(getJedisPollConfig(), redisHost, port, redisTimeOut, redisauth, redisdb);
+        JedisSpringAop jedisCglibProxy = new JedisSpringAop(jedisPool);
+        return jedisCglibProxy.getProxy();
     }
 
 }

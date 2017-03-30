@@ -13,31 +13,65 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 @ContextConfiguration(locations = "classpath:/applicationContext.xml")
-@WebAppConfiguration
 @RunWith(SpringJUnit4ClassRunner.class)
 @Slf4j
 public class SpringTest {
 
     @Autowired
-    private Jedis promotionRedisProxy;
+    private Jedis redisProxy;
+    @Autowired
+    private Jedis redisSpringProxy;
 
     @Test
-    public void test111() throws InterruptedException {
+    public void testredisProxy() throws InterruptedException {
         ExecutorService pool = Executors.newFixedThreadPool(5);
         for (int i = 0; i < 10; i++) {
             final int temp = i;
             pool.execute(new Runnable() {
                 @Override
                 public void run() {
-                    //jedisJdkProxy.getJedisJdkProxyCommands().decr("testjedis:1");
+
                     log.info("before" + temp + "::{}", Thread.currentThread().getName());
-                    //promotionRedisProxy.zincrby("testjedis:"+temp,1.0,temp+"");
-                    promotionRedisProxy.zincrby("testjedis121:"+temp,1.0,temp+"");
+
+                    redisProxy.zincrby("testjedis121:" + temp, 1.0, temp + "");
+
                     log.info("after" + temp + "::{}", Thread.currentThread().getName());
 
                 }
             });
 
+        }
+        Thread.currentThread().sleep(10000L);
+        log.info("over.....");
+    }
+
+    @Test
+    public void testRedisSpringProxy() throws InterruptedException {
+        ExecutorService pool = Executors.newFixedThreadPool(5);
+        for (int i = 0; i < 10; i++) {
+            final int temp = i;
+            pool.execute(new Runnable() {
+                @Override
+                public void run() {
+                    log.info("before" + temp + "---{}", Thread.currentThread().getName());
+                    redisSpringProxy.zincrby("testjedis123:" + temp, 1.0, temp + "");
+                    log.info("after" + temp + "---{}", Thread.currentThread().getName());
+                }
+            });
+
+        }
+        Thread.currentThread().sleep(10000L);
+        log.info("over.....");
+    }
+
+    @Test
+    public void testRedisSpringProxy2() throws InterruptedException {
+        ExecutorService pool = Executors.newFixedThreadPool(5);
+        for (int i = 0; i < 10; i++) {
+            final int temp = i;
+            log.info("before" + temp + "---{}", Thread.currentThread().getName());
+            redisSpringProxy.zincrby("testjedis123:" + temp, 1.0, temp + "");
+            log.info("after" + temp + "---{}", Thread.currentThread().getName());
         }
         Thread.currentThread().sleep(10000L);
         log.info("over.....");
