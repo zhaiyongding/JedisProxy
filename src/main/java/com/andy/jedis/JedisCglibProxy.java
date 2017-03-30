@@ -42,7 +42,7 @@ public class JedisCglibProxy {
         Jedis jedis = jedisPool.getResource();
         Jedis jedisProxy = new CglibProxy().getProxy(jedis);
         jedisProxy.setDataSource(jedisPool);
-        return jedis;
+        return jedisProxy;
     }
 }
 
