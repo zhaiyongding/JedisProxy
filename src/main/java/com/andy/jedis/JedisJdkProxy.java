@@ -73,7 +73,7 @@ class JedisHandler implements InvocationHandler {
     public Object invoke(Object proxy, Method method, Object[] args)
             throws Throwable {
         Object object = null;
-        //jdk代理每次调用都toString,但不需要释放资源
+        //jdk代理每次调用前都toString,但不需要释放资源,不然会有target.close()抛出资源已返还
         for (Method method1 : Arrays.asList(Object.class.getDeclaredMethods())) {
             if (method1.getName().equals(method.getName())) return object;
         }

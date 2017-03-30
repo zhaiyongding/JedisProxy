@@ -65,6 +65,7 @@ class CglibProxy implements MethodInterceptor {
     public Object intercept(Object target, Method method, Object[] args,
                             MethodProxy proxy) throws Throwable {
         Object object = null;
+        //cglib代理会调用Object中的toString和hashCode方法,但不需要释放资源,不然会有target.close()抛出资源已返还
         List<Method> methods = Arrays.asList(Object.class.getDeclaredMethods());
         for(Method method1:methods){
             if (method1.getName().equals(method.getName())) return object;
