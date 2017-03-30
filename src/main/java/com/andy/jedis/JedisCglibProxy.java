@@ -2,9 +2,7 @@
 package com.andy.jedis;
 
 
-import net.sf.cglib.proxy.Enhancer;
-import net.sf.cglib.proxy.MethodInterceptor;
-import net.sf.cglib.proxy.MethodProxy;
+import net.sf.cglib.proxy.*;
 import redis.clients.jedis.Jedis;
 import redis.clients.jedis.JedisCommands;
 import redis.clients.jedis.JedisPool;
@@ -25,6 +23,8 @@ public class JedisCglibProxy {
 
     private JedisPool jedisPool;
 
+    private Enhancer enhancer = new Enhancer();
+
     public JedisCglibProxy(JedisPool jedisPool) {
         this.jedisPool = jedisPool;
     }
@@ -40,8 +40,28 @@ public class JedisCglibProxy {
      */
     public Jedis getJedisCglibProxy() {
         Jedis jedis = jedisPool.getResource();
-        Jedis jedisProxy = new CglibProxy().getProxy(jedis);
+
+        enhancer.setSuperclass(Jedis.class);//设置创建子类的类
+        enhancer.setCallbacks(new Callback[]{new CglibProxy(jedis),new CglibProxyNoOp()});
+        enhancer.setClassLoader(jedis.getClass().getClassLoader());
+        enhancer.setCallbackFilter(new CallbackFilter() {
+            @Override
+            public int accept(Method method) {
+                if("decr".equals(method.getName())){
+                    return 0;
+                }
+                //默认调用CglibProxyNoOp
+                return 1;
+            }
+        });
+        //通过字节码技术动态创建子类实例,Cglib不支持代理类无空构造,
+        //Jedis 2.7 开始有空构造
+        Jedis jedisProxy=  (Jedis) enhancer.create();
+
         jedisProxy.setDataSource(jedisPool);
+        jedis.getClient();
+        //jedisProxy.getClient() null
+        //TODO fix bug
         return jedisProxy;
     }
 }
@@ -49,32 +69,18 @@ public class JedisCglibProxy {
 class CglibProxy implements MethodInterceptor {
     private Jedis jedis;
 
-    private Enhancer enhancer = new Enhancer();
-
-    public Jedis getProxy(Jedis resource) {
-        this.jedis = resource;
-        enhancer.setSuperclass(Jedis.class);//设置创建子类的类
-        enhancer.setCallback(this);
-        enhancer.setClassLoader(resource.getClass().getClassLoader());
-        //通过字节码技术动态创建子类实例,Cglib不支持代理类无空构造,
-        //Jedis 2.7 开始有空构造
-        return (Jedis) enhancer.create();
+    public CglibProxy(Jedis jedis) {
+        this.jedis = jedis;
     }
-
     @Override
     public Object intercept(Object target, Method method, Object[] args,
                             MethodProxy proxy) throws Throwable {
         Object object = null;
         //cglib代理会调用Object中的toString和hashCode方法,但不需要释放资源,不然会有target.close()抛出资源已返还
-        List<Method> methods = Arrays.asList(Object.class.getDeclaredMethods());
-        for(Method method1:methods){
-            if (method1.getName().equals(method.getName())) return object;
-        }
         try {
             object = proxy.invokeSuper(target, args);
         } catch (Exception e) {
             e.printStackTrace();
-
         } finally {
             jedis.close();
         }
@@ -82,4 +88,18 @@ class CglibProxy implements MethodInterceptor {
         return object;
     }
 }
+class CglibProxyNoOp implements MethodInterceptor {
+    @Override
+    public Object intercept(Object target, Method method, Object[] args,
+                            MethodProxy proxy) throws Throwable {
+        Object object = null;
+        try {
+            object = proxy.invokeSuper(target, args);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return object;
+    }
+}
+
 
