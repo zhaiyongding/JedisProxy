@@ -1,5 +1,4 @@
-# Created by .ignore support plugin (hsz.mobi)
-将删除 .gitignore
-将删除 .idea/
-将删除 pom.xml
-将删除 src/
+
+.idea/
+jedis-proxy.iml
+

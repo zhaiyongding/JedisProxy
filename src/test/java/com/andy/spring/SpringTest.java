@@ -70,11 +70,26 @@ public class SpringTest {
         for (int i = 0; i < 10; i++) {
             final int temp = i;
             log.info("before" + temp + "---{}", Thread.currentThread().getName());
-            redisSpringProxy.zincrby("testjedis123:" + temp, 1.0, temp + "");
+            //redisSpringProxy.del("testjedis123:" + temp, 1.0, temp + "");
             log.info("after" + temp + "---{}", Thread.currentThread().getName());
         }
         Thread.currentThread().sleep(10000L);
         log.info("over.....");
     }
+
+    @Test
+    public void testredisProxyCglib() throws InterruptedException {
+        ExecutorService pool = Executors.newFixedThreadPool(5);
+        for (int i = 0; i < 100; i++) {
+            redisProxy.set("testjedis121:" + i, i+"");
+        }
+        for (int i = 0; i < 100; i++) {
+            Long delS=redisProxy.del("testjedis121:" + i);
+            log.info("del:"+delS);
+        }
+        Thread.currentThread().sleep(10000L);
+        log.info("over.....");
+    }
+
 }
 
