@@ -57,11 +57,11 @@ public class JedisCglibProxy {
         //通过字节码技术动态创建子类实例,Cglib不支持代理类无空构造,
         //Jedis 2.7 开始有空构造
         Jedis jedisProxy=  (Jedis) enhancer.create();
-
         jedisProxy.setDataSource(jedisPool);
+
         jedis.getClient();
-        //jedisProxy.getClient() null
-        //TODO fix bug
+        //jedisProxy.getClient() is null
+        //TODO how to fix
         return jedisProxy;
     }
 }
