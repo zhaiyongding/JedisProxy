@@ -1,6 +1,7 @@
 package com.andy.spring;
 
 import com.andy.jedis.JedisJdkProxy;
+import com.andy.jedis.JedisSpringAop;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -22,6 +23,9 @@ public class SpringTest {
     @Autowired
     private JedisJdkProxy jedisJdkProxy;
 
+
+    @Autowired
+    private JedisSpringAop jedisSpringAop;
 
     @Test
     public void testredisProxy() throws InterruptedException {
@@ -69,10 +73,12 @@ public class SpringTest {
     public void testRedisSpringProxy2() throws InterruptedException {
         ExecutorService pool = Executors.newFixedThreadPool(5);
         for (int i = 0; i < 10; i++) {
-            final int temp = i;
-            log.info("before" + temp + "---{}", Thread.currentThread().getName());
-            //redisSpringProxy.del("testjedis123:" + temp, 1.0, temp + "");
-            log.info("after" + temp + "---{}", Thread.currentThread().getName());
+            int temp = 0;
+            log.info("after---{},{}", Thread.currentThread().getName(),temp++);
+            Jedis instance = jedisSpringAop.getInstance();
+            log.info("after---{},{}", Thread.currentThread().getName(),temp++);
+            Long res= instance.incr("testjedis123:");
+            log.info("after---{},{}", Thread.currentThread().getName(),temp++);
         }
         Thread.currentThread().sleep(10000L);
         log.info("over.....");

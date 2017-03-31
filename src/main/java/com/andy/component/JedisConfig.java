@@ -66,6 +66,11 @@ public class JedisConfig {
         JedisJdkProxy jedisJdkProxy = new JedisJdkProxy(jedisPool);
         return jedisJdkProxy;
     }
-
+    @Bean(name ="jedisSpringProxy")
+    public JedisSpringAop jedisSpringProxy() {
+        JedisPool jedisPool = new JedisPool(getJedisPollConfig(), redisHost, port, redisTimeOut, redisauth, redisdb);
+        JedisSpringAop jedisSpringProxy = new JedisSpringAop(jedisPool);
+        return jedisSpringProxy;
+    }
 
 }
