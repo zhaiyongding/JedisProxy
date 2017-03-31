@@ -55,7 +55,8 @@ class JedisAopAdvice implements AfterReturningAdvice {
             try{
                 ((Jedis) target).close();
             }catch (JedisException exception){
-                // no thing to do //重复调用造成 Object has already been returned to this pool or is invalid
+                //二次关闭影响 不能忽略,检查原因
+                //no thing to do //重复调用造成 Object has already been returned to this pool or is invalid
             } finally{
 
             }
