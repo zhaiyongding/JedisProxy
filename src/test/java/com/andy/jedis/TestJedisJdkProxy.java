@@ -8,7 +8,9 @@ import redis.clients.jedis.JedisCommands;
 import redis.clients.jedis.JedisPool;
 import redis.clients.jedis.JedisPoolConfig;
 
+import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
+import java.util.Arrays;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -38,7 +40,7 @@ public class TestJedisJdkProxy {
                 @Override
                 public void run() {
                     Jedis resource = jedisPool.getResource();
-                    JedisHandler jedisHandler=new JedisHandler(resource);
+                    JedisHandler jedisHandler=new JedisHandler(resource,JedisCommands.class);
                     JedisCommands proxy = (JedisCommands) Proxy.newProxyInstance(resource.getClass().getClassLoader(),
                             resource.getClass().getInterfaces(), jedisHandler);
                     log.info("before"+temp+"::{},{}",Thread.currentThread().getName(),jedisPool.getNumActive());
@@ -78,6 +80,31 @@ public class TestJedisJdkProxy {
             e.printStackTrace();
         }
         log.info("over.....");
+    }
+
+    @Test
+    public void testJedisProxy3() {
+        ExecutorService pool = Executors.newFixedThreadPool(5);
+        for (int i = 0; i < 10; i++) {
+            final int temp = i;
+
+            JedisJdkProxy jedisJdkProxy = new JedisJdkProxy(jedisPool);
+
+            Jedis jedisJdkProxy1 = jedisJdkProxy.getJedisJdkProxy(Jedis.class);
+            log.info("before" + temp + "::{},{}", Thread.currentThread().getName(), jedisPool.getNumActive());
+
+            Long res=jedisJdkProxy1.decr("testjedis:3");
+
+            log.info("after" + temp + "::{},{}", Thread.currentThread().getName(), jedisPool.getNumActive());
+
+        }
+        log.info("over.....");
+    }
+    @Test
+    public void testJedisProxy5() {
+        for (Method method1 : Arrays.asList(Jedis.class.getDeclaredMethods())) {
+            log.info(method1.getName());
+        }
     }
 }
 
