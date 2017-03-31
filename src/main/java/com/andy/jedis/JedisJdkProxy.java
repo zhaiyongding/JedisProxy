@@ -10,7 +10,10 @@ import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
 import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * 获取jedis JDK代理
@@ -69,7 +72,8 @@ public class JedisJdkProxy {
 class JedisHandler implements InvocationHandler {
     private Jedis target;
     private Class clazz;
-
+    private static ConcurrentHashMap <String,HashSet<String>>methodCache=new ConcurrentHashMap<String,HashSet<String>>();
+    
     public JedisHandler(Jedis target,Class clazz) {
         this.target = target;
         this.clazz=clazz;
@@ -94,7 +98,19 @@ class JedisHandler implements InvocationHandler {
     private  Boolean matchMethod(Method method){
         //增强cache
         for (Method method1 : Arrays.asList(clazz.getDeclaredMethods())) {
-            if (method1.getName().equals(method.getName())) return true;
+            HashSet<String> methodSet = methodCache.get(clazz.getName());
+            if (methodSet!=null){
+                methodSet.contains(method1);
+            }else{
+                methodSet=new HashSet<String>();
+                methodCache.put(clazz.getName(),methodSet);
+            }
+            if (method1.getName().equals(method.getName())){
+                //加入cache
+                methodSet.add(method.getName());
+                return true;
+            }
+            
         }
         return false;
     }
