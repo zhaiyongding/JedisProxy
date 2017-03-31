@@ -39,7 +39,7 @@ public class JedisJdkProxy {
      *
      * @return JedisCommands
      */
-    public JedisCommands getJedisJdkProxy() {
+    public JedisCommands getInstance() {
 
         Jedis resource = jedisPool.getResource();
         JedisHandler jedisHandler = new JedisHandler(resource,JedisCommands.class);
@@ -57,7 +57,7 @@ public class JedisJdkProxy {
      *              BasicCommands, ClusterCommands, SentinelCommands
      * @return
      */
-    public <T> T getJedisJdkProxy(Class<T> clazz) {
+    public <T> T getInstance(Class<T> clazz) {
         if(!clazz.isInterface()){
             throw new IllegalArgumentException("JDK class proxy must be interface");
         }

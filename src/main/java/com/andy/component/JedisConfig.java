@@ -1,13 +1,16 @@
 package com.andy.component;
 
 import com.andy.jedis.JedisCglibProxy;
+import com.andy.jedis.JedisJdkProxy;
 import com.andy.jedis.JedisSpringAop;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Scope;
 import redis.clients.jedis.Jedis;
+import redis.clients.jedis.JedisCommands;
 import redis.clients.jedis.JedisPool;
 import redis.clients.jedis.JedisPoolConfig;
 
@@ -57,18 +60,12 @@ public class JedisConfig {
     }
 
 
-    @Bean(name ="redisProxy")
-    public Jedis redisProxy() {
+    @Bean(name ="jedisJdkProxy")
+    public JedisJdkProxy redisProxy() {
         JedisPool jedisPool = new JedisPool(getJedisPollConfig(), redisHost, port, redisTimeOut, redisauth, redisdb);
-        JedisCglibProxy jedisCglibProxy = new JedisCglibProxy(jedisPool);
-        return jedisCglibProxy.getJedisCglibProxy();
+        JedisJdkProxy jedisJdkProxy = new JedisJdkProxy(jedisPool);
+        return jedisJdkProxy;
     }
 
-    @Bean(name ="redisSpringProxy")
-    public Jedis redisSpringProxy() {
-        JedisPool jedisPool = new JedisPool(getJedisPollConfig(), redisHost, port, redisTimeOut, redisauth, redisdb);
-        JedisSpringAop jedisCglibProxy = new JedisSpringAop(jedisPool);
-        return jedisCglibProxy.getProxy();
-    }
 
 }

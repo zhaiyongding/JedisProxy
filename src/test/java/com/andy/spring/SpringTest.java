@@ -1,5 +1,6 @@
 package com.andy.spring;
 
+import com.andy.jedis.JedisJdkProxy;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -8,6 +9,7 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.context.web.WebAppConfiguration;
 import redis.clients.jedis.Jedis;
+import redis.clients.jedis.JedisCommands;
 
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -18,9 +20,8 @@ import java.util.concurrent.Executors;
 public class SpringTest {
 
     @Autowired
-    private Jedis redisProxy;
-    @Autowired
-    private Jedis redisSpringProxy;
+    private JedisJdkProxy jedisJdkProxy;
+
 
     @Test
     public void testredisProxy() throws InterruptedException {
@@ -33,7 +34,7 @@ public class SpringTest {
 
                     log.info("before" + temp + "::{}", Thread.currentThread().getName());
 
-                    redisProxy.zincrby("testjedis121:" + temp, 1.0, temp + "");
+                    jedisJdkProxy.getInstance().zincrby("testjedis121:" + temp, 1.0, temp + "");
 
                     log.info("after" + temp + "::{}", Thread.currentThread().getName());
 
@@ -54,7 +55,7 @@ public class SpringTest {
                 @Override
                 public void run() {
                     log.info("before" + temp + "---{}", Thread.currentThread().getName());
-                    redisSpringProxy.zincrby("testjedis123:" + temp, 1.0, temp + "");
+                    jedisJdkProxy.getInstance().zincrby("testjedis123:" + temp, 1.0, temp + "");
                     log.info("after" + temp + "---{}", Thread.currentThread().getName());
                 }
             });
@@ -81,10 +82,10 @@ public class SpringTest {
     public void testredisProxyCglib() throws InterruptedException {
         ExecutorService pool = Executors.newFixedThreadPool(5);
         for (int i = 0; i < 100; i++) {
-            redisProxy.set("testjedis121:" + i, i+"");
+            jedisJdkProxy.getInstance().set("testjedis121:" + i, i+"");
         }
         for (int i = 0; i < 100; i++) {
-            Long delS=redisProxy.del("testjedis121:" + i);
+            Long delS= jedisJdkProxy.getInstance().del("testjedis121:" + i);
             log.info("del:"+delS);
         }
         Thread.currentThread().sleep(10000L);
