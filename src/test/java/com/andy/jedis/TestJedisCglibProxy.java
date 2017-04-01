@@ -39,7 +39,7 @@ public class TestJedisCglibProxy {
                     JedisCglibProxy jedisCglibProxy = new JedisCglibProxy(jedisPool);
                     //jedisJdkProxy.getJedisJdkProxyCommands().decr("testjedis:1");
                     log.info("before" + temp + "::{},{}", Thread.currentThread().getName(), jedisPool.getNumActive());
-                    jedisCglibProxy.getJedisCglibProxy().decr("testjedis:4");
+                    jedisCglibProxy.getInstance().decr("testjedis:4");
                     log.info("after" + temp + "::{},{}", Thread.currentThread().getName(), jedisPool.getNumActive());
 
                 }
@@ -60,7 +60,7 @@ public class TestJedisCglibProxy {
         for (int i = 0; i < 10; i++) {
             JedisCglibProxy jedisCglibProxy = new JedisCglibProxy(jedisPool);
             //jedisJdkProxy.getJedisJdkProxyCommands().decr("testjedis:1");
-            Jedis jedisCglibProxy1 = jedisCglibProxy.getJedisCglibProxy();
+            Jedis jedisCglibProxy1 = jedisCglibProxy.getInstance();
             Long ret=jedisCglibProxy1.decr("testjedis:2");
             log.info("after" + i + "::{},{}::::::{}", Thread.currentThread().getName(), jedisPool.getNumActive(),ret);
         }
