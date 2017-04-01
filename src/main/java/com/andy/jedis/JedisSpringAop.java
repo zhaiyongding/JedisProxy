@@ -48,7 +48,11 @@ class JedisAopAdvice implements AfterReturningAdvice {
     public void afterReturning(Object returnValue, Method method, Object[] args, Object target) throws Throwable {
 
         if(methodCache.contains(method.getName())){
-            ((Jedis) target).close();
+            try{
+                ((Jedis) target).close();
+            }catch (Exception e){
+                throw e;
+            }
         }
     }
 
