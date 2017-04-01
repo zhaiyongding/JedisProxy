@@ -44,10 +44,12 @@ public class JedisCglibProxy {
         Jedis jedis = jedisPool.getResource();
         enhancer.setSuperclass(Jedis.class);//设置创建子类的类
         enhancer.setCallback(new CglibProxy(jedis));
+        enhancer.setClassLoader(Thread.currentThread().getContextClassLoader());
         //通过字节码技术动态创建子类实例,Cglib不支持代理类无空构造,
         //Jedis 2.7 开始有空构造
         Jedis jedisProxy=  (Jedis) enhancer.create();
-        //jedisProxy.setDataSource(jedisPool);
+        //TOFIX 资源加载有问题
+        jedisProxy.setDataSource(jedisPool);
 
         return jedisProxy;
     }
