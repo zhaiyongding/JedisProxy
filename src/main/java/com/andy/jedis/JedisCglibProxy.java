@@ -27,6 +27,7 @@ public class JedisCglibProxy {
 
     public JedisCglibProxy(JedisPool jedisPool) {
         this.jedisPool = jedisPool;
+
     }
 
     public void setJedisPool(JedisPool jedisPool) {
@@ -38,30 +39,15 @@ public class JedisCglibProxy {
      *
      * @return
      */
-    public Jedis getJedisCglibProxy() {
+    public Jedis getInstance() {
         Jedis jedis = jedisPool.getResource();
-
         enhancer.setSuperclass(Jedis.class);//设置创建子类的类
-        enhancer.setCallbacks(new Callback[]{new CglibProxy(jedis),new CglibProxyNoOp()});
-        enhancer.setClassLoader(jedis.getClass().getClassLoader());
-        enhancer.setCallbackFilter(new CallbackFilter() {
-            @Override
-            public int accept(Method method) {
-                if("decr".equals(method.getName())){
-                    return 0;
-                }
-                //默认调用CglibProxyNoOp
-                return 1;
-            }
-        });
+        enhancer.setCallback(new CglibProxy(jedis));
         //通过字节码技术动态创建子类实例,Cglib不支持代理类无空构造,
         //Jedis 2.7 开始有空构造
         Jedis jedisProxy=  (Jedis) enhancer.create();
-        jedisProxy.setDataSource(jedisPool);
+        //jedisProxy.setDataSource(jedisPool);
 
-        jedis.getClient();
-        //jedisProxy.getClient() is null
-        //TODO how to fix
         return jedisProxy;
     }
 }
@@ -85,19 +71,6 @@ class CglibProxy implements MethodInterceptor {
             jedis.close();
         }
 
-        return object;
-    }
-}
-class CglibProxyNoOp implements MethodInterceptor {
-    @Override
-    public Object intercept(Object target, Method method, Object[] args,
-                            MethodProxy proxy) throws Throwable {
-        Object object = null;
-        try {
-            object = proxy.invokeSuper(target, args);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
         return object;
     }
 }

@@ -2,6 +2,7 @@
 package com.andy.jedis;
 
 
+import com.andy.utils.MethodMatchTool;
 import redis.clients.jedis.Jedis;
 import redis.clients.jedis.JedisCommands;
 import redis.clients.jedis.JedisPool;
@@ -84,7 +85,7 @@ class JedisHandler implements InvocationHandler {
             throws Throwable {
         Object object = null;
 
-        if(matchMethod(method)){
+        if(MethodMatchTool.matchMethod(method,clazz)){
             try {
                 object = method.invoke(target, args);
             } finally {
@@ -95,25 +96,7 @@ class JedisHandler implements InvocationHandler {
         return object;
 
     }
-    //jdk代理每次调用前都toString,但不需要释放资源,不然会有target.close()抛出资源已返还
-    private  Boolean matchMethod(Method method){
-        //增强cache
-        HashSet<String> methodSet = methodCache.get(clazz.getName());
-        if (methodSet!=null){
-            methodSet.contains(method.getName());
-        }else {
-            methodSet=new HashSet<String>();
-            methodCache.put(clazz.getName(),methodSet);
-        }
-        for (Method method1 : Arrays.asList(clazz.getDeclaredMethods())) {
-            if (method1.getName().equals(method.getName())){
-                //加入cache
-                methodSet.add(method.getName());
-                return true;
-            }
-        }
-        return false;
-    }
+
 
 }
 
