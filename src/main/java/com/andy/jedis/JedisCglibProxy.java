@@ -2,6 +2,7 @@
 package com.andy.jedis;
 
 
+import com.andy.utils.MethodMatchTool;
 import net.sf.cglib.proxy.*;
 import redis.clients.jedis.Jedis;
 import redis.clients.jedis.JedisCommands;
@@ -68,7 +69,8 @@ class CglibProxy implements MethodInterceptor {
         } catch (Exception e) {
             e.printStackTrace();
         } finally {
-            jedis.close();
+            if (MethodMatchTool.methodCacheCglib.contains(method.getName()))
+                jedis.close();
         }
 
         return object;

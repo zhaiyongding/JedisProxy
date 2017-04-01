@@ -16,10 +16,8 @@ public class MethodMatchTool {
 
     private static ConcurrentHashMap<String,HashSet<String>> methodCacheJdk=new ConcurrentHashMap<String,HashSet<String>>();
 
-    public static HashSet<String> methodCacheCglib;
+    public static HashSet<String> methodCacheCglib;//一次性初始化
 
-
-    //jdk代理每次调用前都toString,但不需要释放资源,不然会有target.close()抛出资源已返还
     public  static Boolean matchMethod(Method method,Class clazz){
         //增强cache
         HashSet<String> methodSet = methodCacheJdk.get(clazz.getName());
