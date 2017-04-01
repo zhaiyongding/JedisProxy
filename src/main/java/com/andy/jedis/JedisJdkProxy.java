@@ -35,7 +35,8 @@ public class JedisJdkProxy {
     }
 
     /**
-     * 默认已以redisCommands 提供服务
+     * 默认已以redisCommands 提供服务,每一次都会返回redis连接,
+     * 务必每次要getInstance
      *
      * @return JedisCommands
      */
