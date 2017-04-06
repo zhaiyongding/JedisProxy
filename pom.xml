@@ -15,13 +15,6 @@
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
         <spring.version>4.2.4.RELEASE</spring.version>
     </properties>
-    <licenses>
-        <license>
-            <name>MIT</name>
-            <url>http://github.com/xetorthio/jedis/raw/master/LICENSE.txt</url>
-            <distribution>repo</distribution>
-        </license>
-    </licenses>
 
     <dependencies>
 
