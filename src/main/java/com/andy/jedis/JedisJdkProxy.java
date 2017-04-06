@@ -48,6 +48,14 @@ public class JedisJdkProxy {
     }
 
     /**
+     * 返回对象可以重复使用,但是使用结束后必须调用close返回资源到连接池
+     * @return
+     */
+    public Jedis getJedisResouce() {
+        return jedisPool.getResource();
+    }
+    /**
+     * 每次必须访问redis 必须调用getInstance 不能重复使用代理资源
      * 返回指定的命令接口
      *
      * @param clazz   命令接口 JedisCommands, MultiKeyCommands,
