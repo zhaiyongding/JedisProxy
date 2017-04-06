@@ -66,12 +66,13 @@ public class TestJedisJdkProxy {
             pool.execute(new Runnable() {
                 @Override
                 public void run() {
-                    JedisJdkProxy jedisJdkProxy=new JedisJdkProxy(jedisPool);
-                    jedisJdkProxy.getInstance(JedisCommands.class).decr("testjedis:3");
+                    JedisJdkProxy  jedisJdkProxy=new JedisJdkProxy (jedisPool);
+                    jedisJdkProxy.getInstance().decr("testjedis:3");
                     log.info("after"+temp+"::{},{}",Thread.currentThread().getName(),jedisPool.getNumActive());
 
                 }
             });
+
 
         }
         log.info("over.....");
@@ -83,9 +84,9 @@ public class TestJedisJdkProxy {
         for (int i = 0; i < 10; i++) {
             final int temp = i;
 
-            JedisJdkProxy jedisJdkProxy = new JedisJdkProxy(jedisPool);
+            JedisJdkProxy   jedisJdkProxy=new JedisJdkProxy (jedisPool);
 
-            Jedis jedisJdkProxy1 = jedisJdkProxy.getInstance(Jedis.class);
+            JedisCommands jedisJdkProxy1 = jedisJdkProxy.getInstance();
             log.info("before" + temp + "::{},{}", Thread.currentThread().getName(), jedisPool.getNumActive());
 
             Long res=jedisJdkProxy1.decr("testjedis:3");

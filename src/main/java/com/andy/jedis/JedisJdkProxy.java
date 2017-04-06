@@ -10,10 +10,7 @@ import redis.clients.jedis.JedisPool;
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
-import java.util.Arrays;
-import java.util.Collections;
 import java.util.HashSet;
-import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
@@ -53,8 +50,7 @@ public class JedisJdkProxy {
     /**
      * 返回指定的命令接口
      *
-     * @param clazz
-     * @param <T>   命令接口 JedisCommands, MultiKeyCommands,
+     * @param clazz   命令接口 JedisCommands, MultiKeyCommands,
      *              AdvancedJedisCommands, ScriptingCommands,
      *              BasicCommands, ClusterCommands, SentinelCommands
      * @return
