@@ -78,7 +78,6 @@ public class JedisJdkProxy {
 class JedisHandler implements InvocationHandler {
     private Jedis target;
     private Class clazz;
-    private static ConcurrentHashMap <String,HashSet<String>>methodCache=new ConcurrentHashMap<String,HashSet<String>>();
     
     public JedisHandler(Jedis target,Class clazz) {
         this.target = target;
