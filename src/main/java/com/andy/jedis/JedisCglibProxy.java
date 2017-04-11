@@ -3,16 +3,13 @@ package com.andy.jedis;
 
 
 import com.andy.utils.MethodMatchTool;
-import net.sf.cglib.proxy.*;
+import net.sf.cglib.proxy.Enhancer;
+import net.sf.cglib.proxy.MethodInterceptor;
+import net.sf.cglib.proxy.MethodProxy;
 import redis.clients.jedis.Jedis;
-import redis.clients.jedis.JedisCommands;
 import redis.clients.jedis.JedisPool;
 
 import java.lang.reflect.Method;
-import java.lang.reflect.Proxy;
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.List;
 
 /**
  * 获取jedis cglib代理
@@ -27,6 +24,7 @@ public class JedisCglibProxy {
     private Enhancer enhancer = new Enhancer();
 
     public JedisCglibProxy(JedisPool jedisPool) {
+        enhancer.setSuperclass(Jedis.class);//设置创建子类的类
         this.jedisPool = jedisPool;
 
     }
@@ -50,43 +48,34 @@ public class JedisCglibProxy {
      * @return 命令接口
      */
     public Jedis getInstance() {
-        Jedis jedis = jedisPool.getResource();
-        enhancer.setSuperclass(Jedis.class);//设置创建子类的类
-        enhancer.setCallback(new CglibProxy(jedis));
+        final Jedis jedis = jedisPool.getResource();
+
         enhancer.setClassLoader(Thread.currentThread().getContextClassLoader());
+        enhancer.setCallback(new MethodInterceptor(){
+            @Override
+            public Object intercept(Object target, Method method, Object[] args,
+                                    MethodProxy proxy) throws Throwable {
+                Object object = null;
+                //cglib代理会调用Object中的toString和hashCode方法,但不需要释放资源,不然会有target.close()抛出资源已返还
+                try {
+                    object = proxy.invoke(jedis, args);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                } finally {
+                    if (MethodMatchTool.methodCacheCglib.contains(method.getName()))
+                        jedis.close();
+                }
+
+                return object;
+            }
+        });
         //通过字节码技术动态创建子类实例,Cglib不支持代理类无空构造,
         //Jedis 2.7 开始有空构造
         Jedis jedisProxy = (Jedis) enhancer.create();
-        //TOFIX 资源加载有问题
-        jedisProxy.setDataSource(jedisPool);
-
         return jedisProxy;
     }
 }
 
-class CglibProxy implements MethodInterceptor {
-    private Jedis jedis;
 
-    public CglibProxy(Jedis jedis) {
-        this.jedis = jedis;
-    }
-
-    @Override
-    public Object intercept(Object target, Method method, Object[] args,
-                            MethodProxy proxy) throws Throwable {
-        Object object = null;
-        //cglib代理会调用Object中的toString和hashCode方法,但不需要释放资源,不然会有target.close()抛出资源已返还
-        try {
-            object = proxy.invoke(jedis, args);
-        } catch (Exception e) {
-            e.printStackTrace();
-        } finally {
-            if (MethodMatchTool.methodCacheCglib.contains(method.getName()))
-                jedis.close();
-        }
-
-        return object;
-    }
-}
 
 
