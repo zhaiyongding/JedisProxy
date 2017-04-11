@@ -42,6 +42,7 @@ public class JedisJdkProxy {
 
         Jedis resource = jedisPool.getResource();
         JedisHandler jedisHandler = new JedisHandler(resource,JedisCommands.class);
+
         Object proxy = Proxy.newProxyInstance(resource.getClass().getClassLoader(),
                 resource.getClass().getInterfaces(), jedisHandler);
         return (JedisCommands) proxy;

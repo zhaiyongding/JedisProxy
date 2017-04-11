@@ -73,7 +73,7 @@ class CglibProxy implements MethodInterceptor {
         Object object = null;
         //cglib代理会调用Object中的toString和hashCode方法,但不需要释放资源,不然会有target.close()抛出资源已返还
         try {
-            object = proxy.invokeSuper(target, args);
+            object = proxy.invoke(jedis, args);
         } catch (Exception e) {
             e.printStackTrace();
         } finally {
