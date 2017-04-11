@@ -50,7 +50,7 @@ public class JedisCglibProxy {
     public Jedis getInstance() {
         final Jedis jedis = jedisPool.getResource();
 
-        enhancer.setClassLoader(Thread.currentThread().getContextClassLoader());
+        //enhancer.setClassLoader(Thread.currentThread().getContextClassLoader());
         enhancer.setCallback(new MethodInterceptor(){
             @Override
             public Object intercept(Object target, Method method, Object[] args,
