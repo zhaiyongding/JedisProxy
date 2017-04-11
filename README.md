@@ -4,7 +4,7 @@
 
 本文提出代理的解决方案.再redis命令完成后的切面完成连接返还到连接池
 1,JedisJdkProxy JDK代理方案
-2,JedisCglibProxy Cglib代理方案(暂时没有通过测试)
+2,JedisCglibProxy Cglib代理方案
 3,master-spring提供SpringAOP 解决方案(类代理)
 
 本文仅仅为学习代理知识尝试,再实际应用每次访问redis必须调用getInstance(),
