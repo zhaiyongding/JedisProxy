@@ -34,13 +34,16 @@ public class JedisCglibProxy {
     public void setJedisPool(JedisPool jedisPool) {
         this.jedisPool = jedisPool;
     }
+
     /**
      * 返回对象可以重复使用,但是使用结束后必须调用close返回资源到连接池
+     *
      * @return
      */
     public Jedis getJedisResouce() {
         return jedisPool.getResource();
     }
+
     /**
      * 每次必须访问redis 必须调用getInstance 不能重复使用代理资源
      *
@@ -53,7 +56,7 @@ public class JedisCglibProxy {
         enhancer.setClassLoader(Thread.currentThread().getContextClassLoader());
         //通过字节码技术动态创建子类实例,Cglib不支持代理类无空构造,
         //Jedis 2.7 开始有空构造
-        Jedis jedisProxy=  (Jedis) enhancer.create();
+        Jedis jedisProxy = (Jedis) enhancer.create();
         //TOFIX 资源加载有问题
         jedisProxy.setDataSource(jedisPool);
 
@@ -67,6 +70,7 @@ class CglibProxy implements MethodInterceptor {
     public CglibProxy(Jedis jedis) {
         this.jedis = jedis;
     }
+
     @Override
     public Object intercept(Object target, Method method, Object[] args,
                             MethodProxy proxy) throws Throwable {
